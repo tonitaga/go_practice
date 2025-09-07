@@ -48,12 +48,22 @@ func asyncSuccessOperation() (string, error) {
 }
 
 func asyncFailedOperation() (string, error) {
-	return "", fmt.Errorf("Some error")
+	return "", fmt.Errorf("some error")
 }
 
 func main() {
-	promise := NewPromise(asyncFailedOperation)
-	promise.Then(
+	promise1 := NewPromise(asyncFailedOperation)
+	promise1.Then(
+		func(value string) {
+			fmt.Println(value)
+		},
+		func(err error) {
+			fmt.Printf("Got error: %s\n", err)
+		},
+	)
+
+	promise2 := NewPromise(asyncSuccessOperation)
+	promise2.Then(
 		func(value string) {
 			fmt.Println(value)
 		},
