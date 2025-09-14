@@ -8,7 +8,7 @@ import (
 
 func main() {
 	server := server.NewDefault()
-	if err := server.Listen(":8080"); err != nil {
+	if err := server.Listen(":8088"); err != nil {
 		fmt.Println(err)
 	}
 }

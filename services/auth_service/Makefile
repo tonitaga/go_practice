@@ -15,8 +15,8 @@ clean:
 
 
 
-AUTH_GEN_FOLDER=$(abspath internal/transport/grpc/gen)
-AUTH_PROTO_FOLDER=$(abspath internal/transport/grpc/proto)
+AUTH_GEN_FOLDER=$(abspath pkg/grpc/gen)
+AUTH_PROTO_FOLDER=$(abspath pkg/grpc/proto)
 
 __generate_proto_auth:
 	@mkdir -p ${AUTH_GEN_FOLDER}
