@@ -1,17 +1,6 @@
 package main
 
-/*
-t = 8
-
-5,7,7,8,8,8,8,8,8,8,8,10
-L         M            R
-L   M1    M     M2     R
-
-	L     M     M      R
-
-r = [3,10]
-*/
-func searchRange(nums []int, target int) []int {
+func searchRange1(nums []int, target int) []int {
 	left, right := 0, len(nums)-1
 
 	for left <= right {
@@ -42,6 +31,37 @@ func searchRange(nums []int, target int) []int {
 	}
 
 	return []int{-1, -1}
+}
+
+func binarySearch(nums []int, target int, go_left bool) int {
+	left, right := 0, len(nums)-1
+
+	index := -1
+	for left <= right {
+		middle := (left + right) / 2
+
+		if nums[middle] == target {
+			index = middle
+			if go_left {
+				right = middle - 1
+			} else {
+				left = middle + 1
+			}
+		} else if nums[middle] < target {
+			left = middle + 1
+		} else {
+			right = middle - 1
+		}
+	}
+
+	return index
+}
+
+func searchRange2(nums []int, target int) []int {
+	return []int{
+		binarySearch(nums, target /*go_left=*/, true),
+		binarySearch(nums, target /*go_left=*/, false),
+	}
 }
 
 func main() {
