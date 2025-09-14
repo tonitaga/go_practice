@@ -10,4 +10,4 @@
   - [X] [35. Search Insert Position](https://leetcode.com/problems/search-insert-position/description/) `Easy` [Solution](easy/35/main.go)
   - [X] [704. Binary Search](https://leetcode.com/problems/binary-search/description/) `Easy` [Solution](easy/704/main.go) 
   - [X] [744. Find Smallest Letter Greater Than Target](https://leetcode.com/problems/find-smallest-letter-greater-than-target/description/) `Easy` [Solution](easy/744/main.go) 
-
+  - [X] [1351. Count Negative Numbers in a Sorted Matrix](https://leetcode.com/problems/count-negative-numbers-in-a-sorted-matrix/description/) `Easy` [Solution](easy/1351/main.go) 
