@@ -12,7 +12,22 @@ func TestSearchRange(t *testing.T) {
 	}
 
 	for i, target := range targets {
-		result := searchRange(nums, target)
+		result := searchRange1(nums, target)
+		if len(result) != 2 {
+			t.Errorf("Result of searchRange must be array of two elements. Got: %d elements", len(result))
+			continue
+		}
+
+		for j, value := range result {
+			if value != results[i][j] {
+				t.Errorf("Wrong interval: Got: [%d, %d]. Expected: [%d, %d]", result[0], result[1], results[i][0], results[i][1])
+				continue
+			}
+		}
+	}
+
+	for i, target := range targets {
+		result := searchRange2(nums, target)
 		if len(result) != 2 {
 			t.Errorf("Result of searchRange must be array of two elements. Got: %d elements", len(result))
 			continue
