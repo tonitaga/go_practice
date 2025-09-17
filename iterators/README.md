@@ -83,23 +83,50 @@ panic: runtime error: range function continued iteration after function for loop
 ## Особенности и ньюансы
 
 ### Pull/Push iterators
+
+Push-итератор в языке программирования Go — это итератор, который передаёт каждое значение последовательности в функцию yield.
+
+- [`Fibonacci`](./std_iterators/fibonacci/main.go)
+
+Pull-итератор в языке программирования Go — это функция, которая позволяет извлекать одно значение за раз из последовательности
+
+- [`Pull`](./std_iterators/pull_iterator/main.go)
+
+
+> **Зачем?**
+
+Например, когда нужно одновременно идти по двум итераторам
+
+- [`TwoIterWalk`](./std_iterators/pull_two_iterators/main.go)
+
 ### Бенчмарки с итераторами
 
-- [`Benchmark`](./benchmark/bench_test.go)
-
-```shell
-goos: linux
-goarch: amd64
-cpu: AMD Ryzen 7 4800H with Radeon Graphics         
-BenchmarkIteratorRange-16       313387570                3.849 ns/op
-BenchmarkUsualRange-16          310089063                3.869 ns/op
-PASS
-ok      command-line-arguments  2.412s
-```
+- [`Benchmark #1`](./benchmark/bench_test.go)
+- [`Benchmark #2`](./benchmark/iter_slice/bench_test.go)
 
 ### Рекурсивные итераторы
+
+- [`RecursiveIterator`](./std_iterators/recursive_iterator/main.go)
+
 ### Конкурентные итераторы
+
+Неправильный подход использования итераторов и горутин
+
+- [`WrongIterGoroutine`](./std_iterators/concurrent/goroutine_first/main.go)
+
+Так как yield вызывается не последовательно, а параллельно.
+
+> **Тогда как?**
+
+Можно развернуть `push` итераторов в `pull` и уже обрабатывать значения в отдельных горутинах
+
+- [`PullIterGoroutine`](./std_iterators/concurrent/pull_iter_goroutine/main.go)
+
 ### Паники с итераторами
+
+- [`PanicFirst`](./std_iterators/panic/first/main.go)
+- [`PanicSecond`](./std_iterators/panic/second/main.go)
+
 ### Naming conventions
 
 В языке программирования Go (Golang) функции и методы итераторов (итераторов) называются в зависимости от последовательности, по которой они проходят.
@@ -136,3 +163,13 @@ func (s *Tree[T]) PreOrder() iter.Seq[T] { /* ... */ }
 ```
 
 ## Внутреннее устройство
+
+Итераторы - это синтаксический сахар
+
+- [`SyntaxSugar`](./std_iterators/syntax_sugar/main.go)
+
+### PUSH & PULL итераторы - кардинально разный поток управления
+
+- PUSH итераторы управляют процессом итерации, передавая значения в функцию до тех пох, пока не закончатся данные или явно не попросят завершить итерирование
+
+- PULL управляют извне и должны сохранять свое состояние между вызовами (Реализованы на основе корутин)
