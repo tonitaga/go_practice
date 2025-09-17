@@ -28,6 +28,18 @@ func DoQuery[T any](database *gorm.DB, query string) iter.Seq[T] {
 	}
 }
 
+func Filter[T any](sequence iter.Seq[T], filter func(T) bool) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for value := range sequence {
+			if filter(value) {
+				if !yield(value) {
+					break
+				}
+			}
+		}
+	}
+}
+
 func main() {
 	database, err := gorm.Open(sqlite.Open("books.db"), &gorm.Config{})
 	if err != nil {
@@ -46,8 +58,11 @@ func main() {
 		database.Create(book)
 	}
 
-	for book := range DoQuery[Book](database, `SELECT b.* FROM books b WHERE theme=="Story"`) {
-		fmt.Println(book)
+	storyFilter := func(b Book) bool {
+		return b.Theme == "Story"
 	}
 
+	for book := range Filter(DoQuery[Book](database, `SELECT * FROM books`), storyFilter) {
+		fmt.Println(book)
+	}
 }
