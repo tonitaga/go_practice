@@ -1,6 +1,6 @@
 package dto
 
-type GeolocationData struct {
+type GeolocationBody struct {
 	Name       string            `json:"name"`
 	LocalNames map[string]string `json:"local_names,omitempty"`
 	Latitude   float64           `json:"lat"`

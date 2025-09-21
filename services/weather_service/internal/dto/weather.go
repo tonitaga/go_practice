@@ -1,12 +1,12 @@
 package dto
 
-type WeatherRequest struct {
+type WeatherRequestBody struct {
 	City        string `json:"city"`
 	CountryCode string `json:"country_code"`
 	State       string `json:"state,omitempty"`
 }
 
-type WeatherResponse struct {
+type WeatherResponseBody struct {
 	Coord struct {
 		Lon float64 `json:"lon"`
 		Lat float64 `json:"lat"`

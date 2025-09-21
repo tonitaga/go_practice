@@ -22,6 +22,7 @@ func (s *server) executeTemplateIndex(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	if err := template.Execute(w, nil); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -35,7 +36,7 @@ func (s *server) handleWeatherRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var requestBody dto.WeatherRequest
+	var requestBody dto.WeatherRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -56,7 +57,7 @@ func (s *server) handleWeatherRequest(w http.ResponseWriter, r *http.Request) {
 
 	defer geolocationResponse.Body.Close()
 
-	var geolocationData []dto.GeolocationData
+	var geolocationData []dto.GeolocationBody
 	if err := json.NewDecoder(geolocationResponse.Body).Decode(&geolocationData); err != nil {
 		http.Error(w, fmt.Sprintf("On deserialize of geolocation response. Cause: %v", err), http.StatusInternalServerError)
 		return
@@ -84,7 +85,7 @@ func (s *server) handleWeatherRequest(w http.ResponseWriter, r *http.Request) {
 
 	defer weatherResponse.Body.Close()
 
-	var weatherData dto.WeatherResponse
+	var weatherData dto.WeatherResponseBody
 	if err := json.NewDecoder(weatherResponse.Body).Decode(&weatherData); err != nil {
 		http.Error(w, fmt.Sprintf("On deserialize of weahter response. Cause: %v", err), http.StatusInternalServerError)
 		return
