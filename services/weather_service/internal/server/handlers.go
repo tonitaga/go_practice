@@ -2,10 +2,9 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
-	"html/template"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/tonitaga/weather_service/internal/dto"
 	"github.com/tonitaga/weather_service/internal/uri"
 )
@@ -15,70 +14,48 @@ const (
 	WeatherBaseUrl     = "https://api.openweathermap.org/data/2.5/weather"
 )
 
-func (s *server) executeTemplateIndex(w http.ResponseWriter, r *http.Request) {
-	template, err := template.ParseFiles("template/index.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+var uriBuilder = uri.NewBuilder()
 
-	if err := template.Execute(w, nil); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
-func (s *server) handleWeatherRequest(w http.ResponseWriter, r *http.Request) {
-	contentType := r.Header.Get("Content-Type")
-	if contentType != "application/json" {
-		http.Error(w, "Invalid content type. Expected application/json", http.StatusBadRequest)
-		return
-	}
-
+func (s *server) getWeahterHandler(c *gin.Context) {
 	var requestBody dto.WeatherRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := c.BindJSON(&requestBody); err != nil {
+		c.String(http.StatusBadRequest, "Bad request")
 		return
 	}
 
-	builder := uri.NewBuilder()
+	var uriBuilder = uri.NewBuilder()
 
-	builder.BaseUrl(GeoLocationBaseUrl)
-	builder.Param("q", requestBody.City, requestBody.CountryCode, requestBody.State)
-	builder.Param("limit", 1)
-	builder.Param("appid", s.config.ApiKey)
+	uriBuilder.BaseUrl(GeoLocationBaseUrl)
+	uriBuilder.Param("q", requestBody.City, requestBody.CountryCode, requestBody.State)
+	uriBuilder.Param("limit", 1)
+	uriBuilder.Param("appid", s.config.ApiKey)
 
-	geolocationResponse, err := http.Get(builder.Build())
+	geolocationsResponse, err := http.Get(uriBuilder.Build())
 	if err != nil {
-		http.Error(w, fmt.Sprintf("On make request for get geolocation. Cause: %v", err), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, "On make request for get geolocation. Cause: %v", err)
 		return
 	}
 
-	defer geolocationResponse.Body.Close()
+	defer geolocationsResponse.Body.Close()
 
-	var geolocationData []dto.GeolocationBody
-	if err := json.NewDecoder(geolocationResponse.Body).Decode(&geolocationData); err != nil {
-		http.Error(w, fmt.Sprintf("On deserialize of geolocation response. Cause: %v", err), http.StatusInternalServerError)
+	var geolocationsData []dto.GeolocationBody
+	if err := json.NewDecoder(geolocationsResponse.Body).Decode(&geolocationsData); err != nil {
+		c.String(http.StatusInternalServerError, "On deserialize of geolocation response. Cause: %v", err)
 		return
 	}
 
-	if len(geolocationData) == 0 {
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
-	}
+	geolocation := geolocationsData[0]
 
-	geolocation := geolocationData[0]
+	uriBuilder.Reset()
 
-	builder.Reset()
+	uriBuilder.BaseUrl(WeatherBaseUrl)
+	uriBuilder.Param("lon", geolocation.Longitude)
+	uriBuilder.Param("lat", geolocation.Latitude)
+	uriBuilder.Param("appid", s.config.ApiKey)
 
-	builder.BaseUrl(WeatherBaseUrl)
-	builder.Param("lon", geolocation.Longitude)
-	builder.Param("lat", geolocation.Latitude)
-	builder.Param("appid", s.config.ApiKey)
-
-	weatherResponse, err := http.Get(builder.Build())
+	weatherResponse, err := http.Get(uriBuilder.Build())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, "On make request for get weahter. Cause: %v", err)
 		return
 	}
 
@@ -86,15 +63,9 @@ func (s *server) handleWeatherRequest(w http.ResponseWriter, r *http.Request) {
 
 	var weatherData dto.WeatherResponseBody
 	if err := json.NewDecoder(weatherResponse.Body).Decode(&weatherData); err != nil {
-		http.Error(w, fmt.Sprintf("On deserialize of weahter response. Cause: %v", err), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, "On deserialize of weahter response. Cause: %v", err)
 		return
 	}
 
-	w.Header().Set("Content-Type", contentType)
-	w.WriteHeader(http.StatusOK)
-
-	if err := json.NewEncoder(w).Encode(&weatherData); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	c.JSON(http.StatusOK, weatherData)
 }
