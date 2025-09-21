@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/tonitaga/weather_service/internal/config"
@@ -23,6 +24,8 @@ func (s *server) Run() error {
 	s.initHandlers()
 
 	address := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
+
+	log.Printf("Listening on '%s'\n", address)
 	return http.ListenAndServe(address, s.httpHandler)
 }
 

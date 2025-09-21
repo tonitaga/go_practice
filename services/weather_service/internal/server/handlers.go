@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 
 	"github.com/tonitaga/weather_service/internal/dto"
@@ -90,8 +89,6 @@ func (s *server) handleWeatherRequest(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("On deserialize of weahter response. Cause: %v", err), http.StatusInternalServerError)
 		return
 	}
-
-	log.Println(weatherData)
 
 	w.Header().Set("Content-Type", contentType)
 	w.WriteHeader(http.StatusOK)
