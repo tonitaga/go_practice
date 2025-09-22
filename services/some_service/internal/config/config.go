@@ -41,5 +41,4 @@ type PostgresConfig struct {
 	Name     string `json:"name"`
 	User     string `json:"user"`
 	Password string `json:"password"`
-	SslMode  bool   `json:"sslmode"`
 }
